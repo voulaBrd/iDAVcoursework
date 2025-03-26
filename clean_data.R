@@ -1,6 +1,9 @@
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
+library(viridisLite)
+library(RColorBrewer)
+library(plotly)
 
 
 data2018 <- read.csv("iDAV CW Datasets\\POAR_2018.csv", 
@@ -83,7 +86,7 @@ dt22 <- rename(data2022, Time = time,
 dt22$Date <- dmy(dt22$Date)
 data22 <- dt22[!is.na(dt22$Date),]
 data22$Time <- gsub("24:00", "23:59", data22$Time)
-data22$Time <- parse_time(data22$Time, format = "%H:%M")
+
 #na_count22 <- dt22 %>% summarise_all((~sum(is.na(.))))
 #hist(dt22$PM10_HOUR, main="Histogram 2022", xlab="Values", col="lightblue", border="black")
 
@@ -161,49 +164,30 @@ PM1022 <- data22 %>% filter(Date == "2022-07-25") %>% select(Date, Time, PM10_HO
 PM1023 <- data23 %>% filter(Date == "2023-07-24") %>% select(Date, Time, PM10_HOUR, Status, Unit)
 
 
-
-
-# View the updated dataset
-
-summary(dt19$PM10_HOUR)  # Before filling NAs
-summary(df_filled$PM10_HOUR) # Median
-summary(dt19_interpolated$PM10_HOUR)
-hist(dt19$PM10_HOUR, main="Histogram 2019R", xlab="Values", col="lightblue", border="black")
-hist(df_filled$PM10_HOUR, main="Histogram 2019 Median", xlab="Values", col="lightblue", border="black")
-hist(dt19_interpolated$PM10_HOUR, main="Histogram 2019 Interpolated", xlab="Values", col="lightblue", border="black")
-
-
-#Plots
-
-
-
-
 # PM10 at given dates DATASET
 #There are 3 random NA values at 2018 & 2020 that I will discard as it won't affect the result. 
 
 df_combined_PM10 <- bind_rows(PM1018,PM1019, PM1020, PM1021, PM1022, PM1023)
 PM10_data_clean <- drop_na(df_combined_PM10)
+write.csv(PM10_data_clean, "PM_10_data.csv", row.names = FALSE)
 
-library(viridisLite)
-library(RColorBrewer)
-library(plotly)
 
-PM10_plot <- ggplot(PM10_data_clean, aes(x = Date, y = PM10_HOUR))+
-  geom_point(aes(colour = factor(year(Date)), 
-                 text = paste(format(Date, "%d-%m-%Y"),"<br>",format(Time, "%H:%M")))) +
-  scale_color_viridis_d(option = "turbo") +
-  #scale_color_brewer(palette = "Set3") + 
-  scale_x_date(
-    date_labels = "%d-%m-%Y",  
-    date_breaks = "1 day"      
-  ) +
-  labs(
-    x = "Date",
-    y = "PM10 (Hourly)",
-    title = "PM10 Hourly Measurements Over Time - Turbo Viridis",
-    colour = "Year"
-  ) +
-  theme_minimal()
-ggplotly(PM10_plot, tooltip = "text")
+# View the updated dataset
+
+#summary(dt19$PM10_HOUR)  # Before filling NAs
+#summary(df_filled$PM10_HOUR) # Median
+#summary(dt19_interpolated$PM10_HOUR)
+#hist(dt19$PM10_HOUR, main="Histogram 2019R", xlab="Values", col="lightblue", border="black")
+#hist(df_filled$PM10_HOUR, main="Histogram 2019 Median", xlab="Values", col="lightblue", border="black")
+#hist(dt19_interpolated$PM10_HOUR, main="Histogram 2019 Interpolated", xlab="Values", col="lightblue", border="black")
+
+
+
+
+
+
+
+
+
 
 
