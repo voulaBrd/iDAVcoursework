@@ -5,8 +5,8 @@ library(viridisLite)
 library(RColorBrewer)
 library(plotly)
 
-
-data2018 <- read.csv("iDAV CW Datasets\\POAR_2018.csv", 
+# \\ Win - / Linux
+data2018 <- read.csv("iDAV CW Datasets/POAR_2018.csv", 
                      skip = 4, header = TRUE)
 dt18 <- rename(data2018, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -25,7 +25,7 @@ test18$Time <- parse_time(test18$Time, format = "%H:%M")
 
 
 
-data2019 <- read.csv("iDAV CW Datasets\\POAR_2019.csv", 
+data2019 <- read.csv("iDAV CW Datasets/POAR_2019.csv", 
                      skip = 4, header = TRUE)
 dt19 <- rename(data2019, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -42,7 +42,7 @@ data19$Time <- parse_time(data19$Time, format = "%H:%M")
 #na_count19 <- dt19 %>% summarise_all((~sum(is.na(.)))) # Count NaN values
 #hist(dt19$PM10_HOUR, main="Histogram 2019", xlab="Values", col="lightblue", border="black")
 
-data2020 <- read.csv("iDAV CW Datasets\\POAR_2020.csv", 
+data2020 <- read.csv("iDAV CW Datasets/POAR_2020.csv", 
                      skip = 4, header = TRUE)
 dt20 <- rename(data2020, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -58,7 +58,7 @@ data20$Time <- parse_time(data20$Time, format = "%H:%M")
 #na_count20 <- dt20 %>% summarise_all((~sum(is.na(.)))) # Count NaN values
 #hist(dt20$PM10_HOUR, main="Histogram 2020", xlab="Values", col="lightblue", border="black")
 
-data2021 <- read.csv("iDAV CW Datasets\\POAR_2021.csv", 
+data2021 <- read.csv("iDAV CW Datasets/POAR_2021.csv", 
                      skip = 4, header = TRUE)
 dt21 <- rename(data2021, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -74,7 +74,7 @@ data21$Time <- parse_time(data21$Time, format = "%H:%M")
 #na_count21 <- dt21 %>% summarise_all((~sum(is.na(.))))
 #hist(dt21$PM10_HOUR, main="Histogram 2021", xlab="Values", col="lightblue", border="black")
 
-data2022 <- read.csv("iDAV CW Datasets\\POAR_2022.csv", 
+data2022 <- read.csv("iDAV CW Datasets/POAR_2022.csv", 
                      skip = 4, header = TRUE)
 dt22 <- rename(data2022, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -86,11 +86,12 @@ dt22 <- rename(data2022, Time = time,
 dt22$Date <- dmy(dt22$Date)
 data22 <- dt22[!is.na(dt22$Date),]
 data22$Time <- gsub("24:00", "23:59", data22$Time)
+data22$Time <- parse_time(data22$Time, format = "%H:%M")
 
 #na_count22 <- dt22 %>% summarise_all((~sum(is.na(.))))
 #hist(dt22$PM10_HOUR, main="Histogram 2022", xlab="Values", col="lightblue", border="black")
 
-data2023 <- read.csv("iDAV CW Datasets\\POAR_2023.csv", 
+data2023 <- read.csv("iDAV CW Datasets/POAR_2023.csv", 
                      skip = 4, header = TRUE)
 dt23 <- rename(data2023, Time = time, 
                PM10_HOUR = PM.sub.10..sub..particulate.matter..Hourly.measured.,
@@ -108,7 +109,7 @@ data23$Time <- parse_time(data23$Time, format = "%H:%M")
 
 #----------------------------------------
 
-# Imputation with Median on 2019
+# Imputation with Median 
 
 # Function to calculate median for the same hour, 3 days before and after
 calculate_hour_median <- function(data, target_date, target_time, column_name) {
@@ -171,8 +172,31 @@ df_combined_PM10 <- bind_rows(PM1018,PM1019, PM1020, PM1021, PM1022, PM1023)
 PM10_data_clean <- drop_na(df_combined_PM10)
 write.csv(PM10_data_clean, "PM_10_data.csv", row.names = FALSE)
 
+# Nitric Oxide Data
+niox18 <- test18 %>% filter(Date == "2018-12-20") %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
+niox19 <- data19 %>% filter(Date == "2019-01-03") %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
+niox20 <- data20 %>% filter(Date %in% c ("2020-03-19", "2020-03-26", "2020-06-29", "2020-11-10", "2020-12-20")) %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
+niox21 <- data21 %>% filter(Date %in% c("2021-01-03", "2021-11-29")) %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
+niox22 <- data22 %>% filter(Date == "2022-07-25") %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
+niox23 <- data23 %>% filter(Date == "2023-07-24") %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
 
-# View the updated dataset
+df_combined_niox <- bind_rows(niox18, niox19, niox20, niox21, niox22, niox23)
+NIOX_data_clean <- drop_na(df_combined_niox) # 1 NA value
+write.csv(NIOX_data_clean, "NI_OX_data.csv", row.names = FALSE)
+
+# Nitrogen Oxides as Nitrogen Dioxide
+nidx18 <- test18 %>% filter(Date == "2018-12-20") %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+nidx19 <- data19 %>% filter(Date == "2019-01-03") %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+nidx20 <- data20 %>% filter(Date %in% c ("2020-03-19", "2020-03-26", "2020-06-29", "2020-11-10", "2020-12-20")) %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+nidx21 <- data21 %>% filter(Date %in% c("2021-01-03", "2021-11-29")) %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+nidx22 <- data22 %>% filter(Date == "2022-07-25") %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+nidx23 <- data23 %>% filter(Date == "2023-07-24") %>% select(Date, Time, Nitrogen_Oxides_as_Nitrogen_Dioxide, Status_NOasND, Unit_NOasSAND)
+
+df_combined_nidx <- bind_rows(nidx18, nidx19, nidx20, nidx21, nidx22, nidx23)
+NIDX_data_clean <- drop_na(df_combined_nidx) # 1 NA value
+write.csv(NIDX_data_clean, "NI_DX_data.csv", row.names = FALSE)
+
+# View the updated data set
 
 #summary(dt19$PM10_HOUR)  # Before filling NAs
 #summary(df_filled$PM10_HOUR) # Median
