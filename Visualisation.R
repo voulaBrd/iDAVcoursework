@@ -20,6 +20,7 @@ categorize <- function(part_values) {
   )
 }
 
+PM_10_data$PM10_HOUR <- na_interpolation(PM_10_data$PM10_HOUR, option = "linear")
 PM_10_data <- PM_10_data %>% mutate(Category = categorize(PM10_HOUR)) # Create a new named column
 NI_DX_data<- NI_DX_data %>% mutate(categorize(Nitrogen_Oxides_as_Nitrogen_Dioxide))
 
@@ -76,13 +77,9 @@ PM10_plot <- ggplot(
     y = "Hour",
     title = "PM10 Hourly Measurements Over Time"
   ) +
-  theme_minimal() +
+  theme_minimal(base_size = 14) +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.title = element_text(size = 14),
-    plot.title = element_text(size = 16),
-    axis.text.y = element_text(size = 12),
-    
+    axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
 ggplotly(PM10_plot, tooltip = "text")
@@ -125,4 +122,33 @@ p <- ggplot(PM_10_data, aes(
   theme_minimal()
 
 ggplotly(p, tooltip = c("text","y"))
+ 
+# 2020 Averages
 
+avg_20_long <- monthly_averages %>% pivot_longer(
+                cols = -month, names_to = "AirParticle",
+                values_to = "AverageValue")
+
+
+avg20 <- ggplot(avg_20_long, aes(
+  x = factor(month),
+  y = AverageValue)) + 
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Monthly Averages 2020",
+    x = "Month",
+    y = "Average Value (µg / m^3)"
+  ) +
+  scale_x_discrete(labels = month.abb) +
+  facet_wrap(~AirParticle, 
+             labeller = as_labeller(c(
+               "PM10_avg" = "PM10 Particles",
+               "NI_OX_avg" = "Nitric Oxide",
+               "NI_DX_avg" = "Nitrogen Dioxide",
+               "NOasNI_avg" = "Nitrogen Oxides as Nitrogen Dioxide"
+             ))) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggplotly(avg20, tooltip = "y")

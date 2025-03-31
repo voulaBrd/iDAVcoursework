@@ -4,6 +4,7 @@ library(ggplot2)
 library(viridisLite)
 library(RColorBrewer)
 library(plotly)
+library(imputeTS)  
 
 # \\ Win - / Linux
 data2018 <- read.csv("iDAV CW Datasets/POAR_2018.csv", 
@@ -55,7 +56,7 @@ dt20$Date <- dmy(dt20$Date)
 data20 <- dt20[!is.na(dt20$Date),]
 data20$Time <- gsub("24:00", "23:59", data20$Time)
 data20$Time <- parse_time(data20$Time, format = "%H:%M")
-#na_count20 <- dt20 %>% summarise_all((~sum(is.na(.)))) # Count NaN values
+# Count NaN values
 #hist(dt20$PM10_HOUR, main="Histogram 2020", xlab="Values", col="lightblue", border="black")
 
 data2021 <- read.csv("iDAV CW Datasets/POAR_2021.csv", 
@@ -169,8 +170,8 @@ PM1023 <- data23 %>% filter(Date == "2023-07-24") %>% select(Date, Time, PM10_HO
 #There are 3 random NA values at 2018 & 2020 that I will discard as it won't affect the result. 
 
 df_combined_PM10 <- bind_rows(PM1018,PM1019, PM1020, PM1021, PM1022, PM1023)
-PM10_data_clean <- drop_na(df_combined_PM10)
-write.csv(PM10_data_clean, "PM_10_data.csv", row.names = FALSE)
+#PM10_data_clean <- drop_na(df_combined_PM10)
+write.csv(df_combined_PM10, "PM_10_data.csv", row.names = FALSE)
 
 # Nitric Oxide Data
 niox18 <- test18 %>% filter(Date == "2018-12-20") %>% select(Date, Time, Nitric_Oxide, Status_NO, Unit_NO)
@@ -206,10 +207,49 @@ write.csv(NIDX_data_clean, "NI_DX_data.csv", row.names = FALSE)
 #hist(dt19_interpolated$PM10_HOUR, main="Histogram 2019 Interpolated", xlab="Values", col="lightblue", border="black")
 
 
+# 2020 monthly averages
+# Negative values -> NA -> impute
+data20$PM10_HOUR <- ifelse(data20$PM10_HOUR < 0, NA, data20$PM10_HOUR)
+
+data20cl <- data20 %>% mutate(
+  month = month(Date),
+  PM10_imputed = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data20, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX_imputed = na_interpolation(Nitric_Oxide, option = "linear"),
+  NI_DX_imputed = na_interpolation(Nitrogen_Dioxide, option = "linear"),
+  NOasNI_DX_imputed = na_interpolation(Nitrogen_Oxides_as_Nitrogen_Dioxide, option = "linear")
+)
+
+data20cl$PM10_imputed <-  na_interpolation(data20cl$PM10_imputed, option = "linear")
+
+#Plot to see the gaps and how they are filled
+
+interactive_plot <- ggplotly(
+  ggplot(data20cl, aes(x = Date)) +
+    geom_line(aes(y = PM10_HOUR, color = "Original"), na.rm = TRUE) +
+    geom_line(aes(y = PM10_imputed, color = "Imputed (Linear)"), linetype = "dashed") +
+    labs(title = "Particle Measurements: Original vs. Imputed",
+         y = "Concentration", color = "Data Type") +
+    theme_minimal(),
+  tooltip = c("x", "y", "colour"))
 
 
+interactive_plot
 
 
+monthly_averages <- data20cl %>%
+  group_by(month) %>%
+  summarise(
+    PM10_avg = mean(PM10_imputed),
+    NI_OX_avg = mean(NI_OX_imputed),
+    NI_DX_avg = mean(NI_DX_imputed),
+    NOasNI_avg = mean(NOasNI_DX_imputed)
+    )
 
 
 
