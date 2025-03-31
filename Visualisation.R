@@ -111,7 +111,7 @@ p <- ggplot(PM_10_data, aes(
   color = factor(year(Date)),
   text = format(Date, "%d-%m-%Y")
 )) +
-  geom_line() +  # No text aesthetic here
+  geom_line() +  
   scale_color_viridis_d(option = "turbo") +
   labs(
     x = "Time",
