@@ -1,0 +1,144 @@
+---
+title: "Air Pollution Levels at Anglesea Road"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(flexdashboard)
+library(ggplot2)
+library(viridisLite)
+library(plotly)
+library(imputeTS)  
+
+PM_10_data <- read.csv("PM_10_data.csv")
+PM_10_data$Date <- as.Date(PM_10_data$Date, format = "%Y-%m-%d")
+PM_10_data$Time <- parse_time(PM_10_data$Time, format = "%H:%M:%S")
+
+NI_OX_data <- read.csv("NI_OX_data.csv")
+NI_OX_data$Date <- as.Date(NI_OX_data$Date, format = "%Y-%m-%d")
+NI_OX_data$Time <- parse_time(NI_OX_data$Time, format = "%H:%M:%S")
+
+
+NI_DX_data <-read.csv("NI_DX_data.csv")
+NI_DX_data$Date <- as.Date(NI_DX_data$Date, format = "%Y-%m-%d")
+NI_DX_data$Time <- parse_time(NI_DX_data$Time, format = "%H:%M:%S")
+
+Avg_2020 <- read_csv("2020_Avgs.csv")
+
+categorize <- function(part_values) {
+  breaks <-  c (0, 16, 33, 50, 75, 100, Inf)  #c(0, 200, 400, 600, Inf)
+  labels <- c("Low (0-16)", "Low (17-33)", "Low (34-50)", "Moderate (51-75)", "High (77-100)", "Very High (>100)")
+  
+  cut(part_values, breaks = breaks, labels = labels, right = FALSE,  # 50 µg/m³ is "Moderate" (not "Low")
+      include.lowest = TRUE  # Includes 0 
+  )
+}
+
+PM_10_data$PM10_HOUR <- na_interpolation(PM_10_data$PM10_HOUR, option = "linear")
+PM_10_data <- PM_10_data %>% mutate(Category = categorize(PM10_HOUR)) # Create a new named column
+NI_DX_data<- NI_DX_data %>% mutate(categorize(Nitrogen_Oxides_as_Nitrogen_Dioxide))
+```
+
+PM10 {.tabset}
+===================================== 
+### PM10
+
+```{r}
+PM10_plot <- ggplot(PM_10_data, aes(
+                      x = as.factor(Date),
+                      y = as.factor(Time),
+                      text = paste("PM10:", PM10_HOUR,"µg / m^3"))) +
+              geom_point(aes(colour = Category),  size = 3) +
+              scale_color_viridis_d(option = "viridis") + 
+              labs(
+                x = "Date",
+                y = "Hour",
+                title = "PM10 Hourly Measurements Over Time"
+              ) +
+              theme_minimal(base_size = 14) +
+              theme(
+                axis.text.x = element_text(angle = 45, hjust = 1)
+              )
+
+ggplotly(PM10_plot, tooltip = "text")
+
+```
+Nitric Oxide {.tabset}
+===================================== 
+### Nitric Oxide
+
+```{r}
+nitric_oxide_plot <- ggplot(NI_OX_data, aes(
+                              x = Time,
+                              y = Nitric_Oxide,
+                              color = factor(year(Date)),
+                              text = format(Date, "%d-%m-%Y")
+                            )) +
+                              geom_line() +  
+                              scale_color_viridis_d(option = "turbo") +
+                              labs(
+                                x = "Time",
+                                y = "Nitric Oxide (µg / m^3)",
+                                title = "Nitric Oxide Hourly Measurements ",
+                                colour = "Year"
+                              ) +
+                              theme_minimal()
+
+ggplotly(nitric_oxide_plot, tooltip = c("text","y"))
+
+```
+Nitrogen Dioxide  {.tabset}
+===================================== 
+### Nitrogen Dioxide 
+
+```{r}
+NI_DX_boxplot <- ggplot(NI_DX_data, aes(x = as.factor(Date), y = Nitrogen_Oxides_as_Nitrogen_Dioxide)) +
+  geom_boxplot(aes(colour = factor(year(Date)))) + 
+  scale_color_viridis_d(option = "turbo") +
+  labs(
+    x = "Date",
+    y = "Nitrogen Dioxide(µg / m^3)",
+    title = "Nitrogen Dioxide Daily Distribution ",
+    colour = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(NI_DX_boxplot, tooltip = "text")
+```
+Monthly Averages 2020 {.tabset}
+===================================== 
+### Monthly Averages 2020
+```{r}
+avg20 <- ggplot(Avg_2020, aes(
+  x = factor(month),
+  y = AverageValue)) + 
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Monthly Averages 2020",
+    x = "Month",
+    y = "Average Value (µg / m^3)"
+  ) +
+  scale_x_discrete(labels = month.abb) +
+  facet_wrap(~AirParticle, 
+             labeller = as_labeller(c(
+               "PM10_avg" = "PM10 Particles",
+               "NI_OX_avg" = "Nitric Oxide",
+               "NI_DX_avg" = "Nitrogen Dioxide",
+               "NOasNI_avg" = "Nitrogen Oxide as Nitrogen Dioxide"
+             ))) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+ggplotly(avg20, tooltip = "y")
+```
+
+

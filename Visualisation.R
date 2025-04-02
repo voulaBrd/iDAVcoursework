@@ -152,3 +152,5 @@ avg20 <- ggplot(avg_20_long, aes(
 
 
 ggplotly(avg20, tooltip = "y")
+
+

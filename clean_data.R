@@ -251,7 +251,327 @@ monthly_averages <- data20cl %>%
     NOasNI_avg = mean(NOasNI_DX_imputed)
     )
 
+# Plot 5
+
+
+plot_ly(test18, x = ~Date) %>%
+  add_trace(y = ~PM10_HOUR, name = "PM10", mode = "markers") %>%
+  add_trace(y = ~Nitric_Oxide, name = "Nitric Oxide", mode = "markers") %>%
+  add_trace(y = ~Nitrogen_Dioxide, name = "Nitrogen Dioxide", mode = "markers") %>%
+  add_trace(y = ~Nitrogen_Oxides_as_Nitrogen_Dioxide, 
+            name = "Nitrogen Oxides (as NO2)", mode = "markers") %>%
+  layout(
+    title = "Air Pollution Particles Over Time",
+    yaxis = list(title = "Concentration"),
+    hovermode = "x unified"  # Shows all Y-values at the same X (Date) on hover
+  )
+#----------------------------------
+test18$PM10_HOUR <- ifelse(test18$PM10_HOUR < 0, NA, test18$PM10_HOUR)
+test18$Nitric_Oxide <- ifelse(test18$Nitric_Oxide < 0, NA, test18$Nitric_Oxide)
+curated18 <- test18 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(test18, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(test18, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(test18, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(test18, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
 
 
 
+data19$Nitric_Oxide <- ifelse(data19$Nitric_Oxide < 0, NA, data19$Nitric_Oxide)
+data19$Nitrogen_Dioxide <- ifelse(data19$Nitrogen_Dioxide < 0, NA, data19$Nitrogen_Dioxide)
+data19$Nitrogen_Oxides_as_Nitrogen_Dioxide <- ifelse(data19$Nitrogen_Oxides_as_Nitrogen_Dioxide < 0, NA, data19$Nitrogen_Oxides_as_Nitrogen_Dioxide)
 
+data19$PM10_HOUR <- ifelse(data19$PM10_HOUR < 0, NA, data19$PM10_HOUR)
+curated19 <- data19 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data19, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data19, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data19, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data19, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
+
+data20$PM10_HOUR <- ifelse(data20$PM10_HOUR < 0, NA, data20$PM10_HOUR)
+data20$Nitric_Oxide <- ifelse(data20$Nitric_Oxide < 0, NA, data20$Nitric_Oxide)
+data20$Nitrogen_Dioxide <- ifelse(data20$Nitrogen_Dioxide < 0, NA, data20$Nitrogen_Dioxide)
+data20$Nitrogen_Oxides_as_Nitrogen_Dioxide <- ifelse(data20$Nitrogen_Oxides_as_Nitrogen_Dioxide < 0, NA, data20$Nitrogen_Oxides_as_Nitrogen_Dioxide)
+
+data20$PM10_HOUR <- ifelse(data20$PM10_HOUR < 0, NA, data20$PM10_HOUR)
+curated20 <- data20 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data20, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data20, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data20, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data20, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
+
+data21$PM10_HOUR <- ifelse(data21$PM10_HOUR < 0, NA, data21$PM10_HOUR)
+data21$Nitric_Oxide <- ifelse(data21$Nitric_Oxide < 0, NA, data21$Nitric_Oxide)
+data21$Nitrogen_Dioxide <- ifelse(data21$Nitrogen_Dioxide < 0, NA, data21$Nitrogen_Dioxide)
+data21$Nitrogen_Oxides_as_Nitrogen_Dioxide <- ifelse(data21$Nitrogen_Oxides_as_Nitrogen_Dioxide < 0, NA, data21$Nitrogen_Oxides_as_Nitrogen_Dioxide)
+
+data21$PM10_HOUR <- ifelse(data21$PM10_HOUR < 0, NA, data21$PM10_HOUR)
+curated21 <- data21 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data21, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data21, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data21, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data21, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
+
+  
+data22$PM10_HOUR <- ifelse(data22$PM10_HOUR < 0, NA, data22$PM10_HOUR)
+data22$Nitric_Oxide <- ifelse(data22$Nitric_Oxide < 0, NA, data22$Nitric_Oxide)
+data22$Nitrogen_Dioxide <- ifelse(data22$Nitrogen_Dioxide < 0, NA, data22$Nitrogen_Dioxide)
+data22$Nitrogen_Oxides_as_Nitrogen_Dioxide <- ifelse(data22$Nitrogen_Oxides_as_Nitrogen_Dioxide < 0, NA, data22$Nitrogen_Oxides_as_Nitrogen_Dioxide)
+
+
+curated22 <- data22 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data22, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data22, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data22, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data22, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
+
+data23$PM10_HOUR <- ifelse(data23$PM10_HOUR < 0, NA, data23$PM10_HOUR)
+data23$Nitric_Oxide <- ifelse(data23$Nitric_Oxide < 0, NA, data23$Nitric_Oxide)
+data23$Nitrogen_Dioxide <- ifelse(data23$Nitrogen_Dioxide < 0, NA, data23$Nitrogen_Dioxide)
+data23$Nitrogen_Oxides_as_Nitrogen_Dioxide <- ifelse(data23$Nitrogen_Oxides_as_Nitrogen_Dioxide < 0, NA, data23$Nitrogen_Oxides_as_Nitrogen_Dioxide)
+
+data23$PM10_HOUR <- ifelse(data23$PM10_HOUR < 0, NA, data23$PM10_HOUR)
+curated23 <- data23 %>% mutate(
+  Month = month(Date),
+  PM10 = if_else(
+    is.na(PM10_HOUR),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data23, Date[i], Time[i], "PM10_HOUR")
+    }),
+    PM10_HOUR
+  ),
+  NI_OX = if_else(
+    is.na(Nitric_Oxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data23, Date[i], Time[i], "Nitric_Oxide")
+    }),
+    Nitric_Oxide
+  ),
+  NI_DX = if_else(
+    is.na(Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data23, Date[i], Time[i], "Nitrogen_Dioxide")
+    }),
+    Nitrogen_Dioxide
+  ),
+  NOasNI_DX = if_else(
+    is.na(Nitrogen_Oxides_as_Nitrogen_Dioxide),
+    sapply(1:n(), function(i) {
+      calculate_hour_median(data23, Date[i], Time[i], "Nitrogen_Oxides_as_Nitrogen_Dioxide")
+    }),
+    Nitrogen_Oxides_as_Nitrogen_Dioxide
+  ))
+
+m_a_18 <- select(curated18, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_18 <- m_a_18 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+m_a_19 <- select(curated19, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_19 <- m_a_19 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+curated20$PM10 <-  na_interpolation(curated20$PM10, option = "linear")
+m_a_20 <- select(curated20, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_20 <- m_a_20 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+curated21$PM10 <-  na_interpolation(curated21$PM10, option = "linear")
+m_a_21 <- select(curated21, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_21 <- m_a_21 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+curated22$PM10 <-  na_interpolation(curated22$PM10, option = "linear")
+m_a_22 <- select(curated22, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_22 <- m_a_22 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+curated23$PM10 <-  na_interpolation(curated23$PM10, option = "linear")
+m_a_23 <- select(curated23, c("Date", "Time", "Month", "PM10", "NI_OX", "NI_DX","NOasNI_DX")) 
+monthly_averages_23 <- m_a_23 %>% 
+  group_by(Month, Year = year(Date)) %>%
+  summarise(
+    PM10_avg = mean(PM10),
+    NI_OX_avg = mean(NI_OX),
+    NI_DX_avg = mean(NI_DX),
+    NOasNI_avg = mean(NOasNI_DX)
+  )
+
+monthly_averages <- bind_rows(monthly_averages_18, monthly_averages_19, monthly_averages_20,
+                              monthly_averages_21, monthly_averages_22, monthly_averages_23)
+
+monthly_averages_l <- monthly_averages %>% pivot_longer(
+  cols = -c(Month, Year), names_to = "AirParticle",
+  values_to = "AverageValue")
+#--------------------------------
+p <- ggplot(monthly_averages_l, aes(x = as.factor(Month), y = AverageValue, color = as.factor(Year), group = as.factor(Year))) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~AirParticle) +
+  labs(
+    title = "Monthly Average Values of Air Pollutants Over 6 Years",
+    x = "Month",
+    y = "Average Value",
+    color = "Year"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Convert ggplot to interactive Plotly plot
+interactive_plot <- ggplotly(p)
+
+# Show the interactive plot
+interactive_plot
