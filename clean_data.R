@@ -556,22 +556,5 @@ monthly_averages <- bind_rows(monthly_averages_18, monthly_averages_19, monthly_
 monthly_averages_l <- monthly_averages %>% pivot_longer(
   cols = -c(Month, Year), names_to = "AirParticle",
   values_to = "AverageValue")
-#--------------------------------
-p <- ggplot(monthly_averages_l, aes(x = as.factor(Month), y = AverageValue, color = as.factor(Year), group = as.factor(Year))) +
-  geom_line() +
-  geom_point() +
-  facet_wrap(~AirParticle) +
-  labs(
-    title = "Monthly Average Values of Air Pollutants Over 6 Years",
-    x = "Month",
-    y = "Average Value",
-    color = "Year"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+write.csv(monthly_averages, "Total_Averages.csv", row.names = FALSE )
 
-# Convert ggplot to interactive Plotly plot
-interactive_plot <- ggplotly(p)
-
-# Show the interactive plot
-interactive_plot

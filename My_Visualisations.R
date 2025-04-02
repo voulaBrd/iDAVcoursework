@@ -18,11 +18,12 @@ NI_DX_data$Date <- as.Date(NI_DX_data$Date, format = "%Y-%m-%d")
 NI_DX_data$Time <- parse_time(NI_DX_data$Time, format = "%H:%M:%S")
 
 Avg_2020 <- read_csv("2020_Avgs.csv")
+Total_Avgs <- read_csv("Total_Averages.csv")
 
-# Function Category
-# PM10 (0, 50, 75, 100, Inf) Nitrogen Dioxide (0, 200, 400, 600, Inf)
+# Function Categorize
+
 categorize <- function(part_values) {
-  breaks <-  c (0, 16, 33, 50, 75, 100, Inf)  #c(0, 200, 400, 600, Inf)
+  breaks <-  c (0, 16, 33, 50, 75, 100, Inf) 
   labels <- c("Low (0-16)", "Low (17-33)", "Low (34-50)", "Moderate (51-75)", "High (77-100)", "Very High (>100)")
   
   cut(part_values, breaks = breaks, labels = labels, right = FALSE,  # 50 µg/m³ is "Moderate" (not "Low")
@@ -32,7 +33,6 @@ categorize <- function(part_values) {
 
 PM_10_data$PM10_HOUR <- na_interpolation(PM_10_data$PM10_HOUR, option = "linear")
 PM_10_data <- PM_10_data %>% mutate(Category = categorize(PM10_HOUR)) # Create a new named column
-NI_DX_data<- NI_DX_data %>% mutate(categorize(Nitrogen_Oxides_as_Nitrogen_Dioxide))
 
 # PM10
 
@@ -67,7 +67,7 @@ nitric_oxide_plot <- ggplot(NI_OX_data, aes(
                               labs(
                                 x = "Time",
                                 y = "Nitric Oxide (µg / m^3)",
-                                title = "Nitric Oxide Hourly Measurements ",
+                                title = "Nitric Oxide Hourly Measurements / Day",
                                 colour = "Year"
                               ) +
                               theme_minimal()
@@ -109,10 +109,42 @@ avg20 <- ggplot(Avg_2020, aes(
                "PM10_avg" = "PM10 Particles",
                "NI_OX_avg" = "Nitric Oxide",
                "NI_DX_avg" = "Nitrogen Dioxide",
-               "NOasNI_avg" = "Nitrogen Dioxide"
+               "NOasNI_avg" = "Nitrogen Oxides as Nitrogen Dioxide"
              ))) +
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 ggplotly(avg20, tooltip = "y")
+
+# Last Visualization
+
+avg_plot <- ggplot(Total_Avgs, aes(
+  x = as.factor(Month), 
+  y = AverageValue, 
+  color = as.factor(Year), 
+  group = as.factor(Year), 
+  text = paste("Month:",month.abb,"<br>", 
+               round(AverageValue,2),"µg / m^3"))) +
+  geom_line() +
+  geom_point() +
+  scale_color_viridis_d(option = "viridis") +
+  labs(
+    title = "Monthly Average of Air Pollutants Over 6 Years",
+    x = "Month",
+    y = "Average Value (µg / m^3)",
+    color = "Year"
+  ) +
+  scale_x_discrete(labels = month.abb)+
+  facet_wrap(~AirParticle, 
+             labeller = as_labeller(c(
+               "PM10_avg" = "PM10 Particles",
+               "NI_OX_avg" = "Nitric Oxide",
+               "NI_DX_avg" = "Nitrogen Dioxide",
+               "NOasNI_avg" = "Nitrogen Oxides as Nitrogen Dioxide"
+             ))) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+avg_interactive <- ggplotly(avg_plot, tooltip = "text")
+avg_interactive
